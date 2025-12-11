@@ -13,8 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 public class TourUpdateDto {
-    private UUID tourId;
-    private UUID agencyId;
     private String title;
     private String description;
     private LocalDate startDate;

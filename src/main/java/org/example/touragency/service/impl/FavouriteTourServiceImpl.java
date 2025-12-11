@@ -1,13 +1,11 @@
 package org.example.touragency.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.touragency.dto.request.FavouriteTourDto;
 import org.example.touragency.model.enity.FavouriteTour;
 import org.example.touragency.model.enity.Tour;
 import org.example.touragency.repository.FavTourRepository;
 import org.example.touragency.repository.TourRepository;
 import org.example.touragency.service.abstractions.FavouriteTourService;
-import org.springframework.format.FormatterRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,18 +21,22 @@ public class FavouriteTourServiceImpl implements FavouriteTourService {
 
 
     @Override
-    public void addFavouriteTour(FavouriteTourDto favouriteTourDto) {
-
-        FavouriteTour favouriteTour = FavouriteTour.builder()
-                .tourId(favouriteTourDto.getTourId())
-                .userId(favouriteTourDto.getUserId())
-                .build();
-        favTourRepository.addFavouriteTour(favouriteTour);
+    public FavouriteTour addFavouriteTour(UUID  userId, UUID tourId) {
+        Tour existTour = tourRepository.getTourById(tourId);
+        if (existTour != null) {
+            FavouriteTour favouriteTour = FavouriteTour.builder()
+                    .tourId(tourId)
+                    .userId(userId)
+                    .build();
+            favTourRepository.addFavouriteTour(favouriteTour);
+            return favouriteTour;
+        }
+        return null;
     }
 
     @Override
-    public void deleteFavouriteTour(FavouriteTourDto favouriteTourDto) {
-        favTourRepository.deleteFavouriteTourByUserId(favouriteTourDto.getUserId(),favouriteTourDto.getTourId());
+    public void deleteFavouriteTour(UUID userId, UUID tourId) {
+        favTourRepository.deleteFavouriteTourByUserId(userId,tourId);
     }
 
     @Override

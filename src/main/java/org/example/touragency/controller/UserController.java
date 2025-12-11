@@ -19,7 +19,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/add")
+    @PostMapping()
     public ResponseEntity<?> addNewUser(@RequestBody UserAddDto userAddDto) {
         try{
             userService.addNewUser(userAddDto);
@@ -29,25 +29,25 @@ public class UserController {
         }
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<List<User>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUserById(@RequestParam UUID id) {
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUserById(@RequestParam UUID userId) {
         try{
-            userService.deleteUser(id);
+            userService.deleteUser(userId);
             return ResponseEntity.ok("User has successfully been deleted");
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-   @PutMapping("/update")
-    public ResponseEntity<?> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
+   @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateDto userUpdateDto) {
         try{
-            userService.updateUser(userUpdateDto);
+            userService.updateUser(userId, userUpdateDto);
             return ResponseEntity.ok("User has successfully been Updated");
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());

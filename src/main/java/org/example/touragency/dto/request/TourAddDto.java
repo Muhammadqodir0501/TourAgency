@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Getter
@@ -13,7 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 public class TourAddDto {
-    private UUID agencyId;
     private String agencyName;
     private String title;
     private String description;

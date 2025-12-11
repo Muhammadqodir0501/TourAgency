@@ -1,9 +1,7 @@
 package org.example.touragency.repository;
 
-import lombok.RequiredArgsConstructor;
-import org.example.touragency.dto.request.FavouriteTourDto;
+
 import org.example.touragency.model.enity.FavouriteTour;
-import org.example.touragency.model.enity.Tour;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

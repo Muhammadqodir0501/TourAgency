@@ -2,7 +2,6 @@ package org.example.touragency.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.touragency.dto.request.TourAddDto;
-import org.example.touragency.dto.request.TourDeleteDto;
 import org.example.touragency.dto.response.TourResponseDto;
 import org.example.touragency.dto.response.TourUpdateDto;
 import org.example.touragency.model.Role;
@@ -17,8 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,15 +28,15 @@ public class TourServiceImpl implements TourService {
 
 
     @Override
-    public Tour addNewTour(TourAddDto tourAddDto) {
+    public Tour addNewTour(UUID agencyId, TourAddDto tourAddDto) {
 
         Integer nights = calculatingNights(tourAddDto.getStartDate(), tourAddDto.getReturnDate());
-        User agency = userRepository.getUserById(tourAddDto.getAgencyId());
+        User agency = userRepository.getUserById(agencyId);
 
-        if(agency.getRole().equals(Role.AGENCY)) {
+        if(agency != null && agency.getRole().equals(Role.AGENCY)) {
             Tour newTour = Tour.builder()
                     .title(tourAddDto.getTitle())
-                    .agencyId(tourAddDto.getAgencyId())
+                    .agencyId(agencyId)
                     /*.city(tourAddDto.getCity(city)) */
                     .hotel(tourAddDto.getHotel())
                     .description(tourAddDto.getDescription())
@@ -57,21 +55,21 @@ public class TourServiceImpl implements TourService {
     }
 
     @Override
-    public void deleteTour(TourDeleteDto tourDeleteDto) {
+    public void deleteTour(UUID agencyId, UUID tourId) {
 
-        User agency = userRepository.getUserById(tourDeleteDto.getAgencyId());
+        User agency = userRepository.getUserById(agencyId);
 
-        if(agency.getRole().equals(Role.AGENCY) && tourDeleteDto.getTourId() != null) {
-            favTourRepository.deleteAllFavToursIfTourDeleted(tourDeleteDto.getTourId());
-            tourRepository.deleteTour(tourDeleteDto.getTourId());
+        if(agency.getRole().equals(Role.AGENCY) && tourId != null) {
+            favTourRepository.deleteAllFavToursIfTourDeleted(tourId);
+            tourRepository.deleteTour(tourId);
         }
     }
 
     @Override
-    public Tour updateTour(TourUpdateDto tourUpdateDto) {
-        Tour existingTour = tourRepository.getTourById(tourUpdateDto.getTourId());
+    public Tour updateTour(UUID agencyId, UUID tourId, TourUpdateDto tourUpdateDto) {
+        Tour existingTour = tourRepository.getTourById(tourId);
 
-        if(existingTour != null) {
+        if(existingTour != null && existingTour.getAgencyId().equals(agencyId)) {
             Integer nights = calculatingNights(tourUpdateDto.getStartDate(), tourUpdateDto.getReturnDate());
 
             existingTour.setTitle(tourUpdateDto.getTitle());
