@@ -10,7 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 public class RatingDto {
-    UUID tourId;
-    UUID userId;
-    Float rating;
+    private UUID tourId;
+    private UUID userId;
+    private Float rating;
 }

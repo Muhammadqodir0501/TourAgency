@@ -1,11 +1,8 @@
 package org.example.touragency.repository;
 
-import lombok.RequiredArgsConstructor;
 import org.example.touragency.model.Role;
-import org.example.touragency.model.enity.Tour;
 import org.example.touragency.model.enity.User;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;

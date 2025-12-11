@@ -14,7 +14,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <spring.version>5.3.39</spring.version> <!-- последняя версия Spring 5 -->
+        <spring.version>5.3.39</spring.version>
         <jackson.version>2.17.2</jackson.version>
         <lombok.version>1.18.34</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
@@ -22,7 +22,6 @@
 
     <dependencies>
 
-        <!-- Spring Web MVC (всё, что нужно для REST и MVC) -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -36,7 +35,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Jackson — для JSON (@RestController) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -48,7 +46,6 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -56,7 +53,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- MapStruct -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
@@ -69,7 +65,6 @@
         <finalName>tour-agency</finalName>
 
         <plugins>
-            <!-- Компилятор + аннотационные процессоры -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -96,8 +91,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
-            <!-- WAR плагин — без web.xml -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>

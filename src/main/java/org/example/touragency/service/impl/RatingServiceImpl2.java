@@ -13,11 +13,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RatingServiceImpl2 implements RatingService {
+public class RatingServiceImpl2  {
 
     private final Database db;
 
-    @Override
     public void addRating(RatingDto ratingDto) {
         UUID tourId = ratingDto.getTourId();
         UUID userId = ratingDto.getUserId();
@@ -46,7 +45,7 @@ public class RatingServiceImpl2 implements RatingService {
                 .orElse(null);
     }
 
-    @Override
+
     public void ratingCount(RatingDto ratingDto) {
         UUID tourId = ratingDto.getTourId();
         RatingCounter counter = db.ratingCounters.get(tourId);
@@ -68,7 +67,7 @@ public class RatingServiceImpl2 implements RatingService {
 
     }
 
-    @Override
+
     public void updateExistRating(RatingDto ratingDto, Rating existRating) {
         UUID tourId = existRating.getTourId();
         RatingCounter counter = db.ratingCounters.get(tourId);
