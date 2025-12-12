@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.touragency.dto.request.TourAddDto;
 import org.example.touragency.dto.response.TourResponseDto;
 import org.example.touragency.dto.response.TourUpdateDto;
+import org.example.touragency.model.enity.Tour;
 import org.example.touragency.service.abstractions.TourService;
+import org.example.touragency.service.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,40 +22,37 @@ public class TourController {
     final private TourService tourService;
 
     @PostMapping()
-    public ResponseEntity<?> addNewTour(@PathVariable UUID agencyId, @RequestBody TourAddDto tourAddDto) {
-        try{
-            tourService.addNewTour(agencyId, tourAddDto);
-            return ResponseEntity.ok("Tour has successfully been added");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<?>> addNewTour(@PathVariable UUID agencyId,
+                                                     @RequestBody TourAddDto tourAddDto) {
+            Tour createdTour = tourService.addNewTour(agencyId, tourAddDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(createdTour));
+
     }
 
     @DeleteMapping("/{tourId}")
-    public ResponseEntity<?> deleteTour(@PathVariable UUID agencyId, @PathVariable UUID tourId) {
-        try{
+    public ResponseEntity<ApiResponse<?>> deleteTour(@PathVariable UUID agencyId, @PathVariable UUID tourId) {
             tourService.deleteTour(agencyId,tourId);
-            return ResponseEntity.ok("Tour has successfully been removed");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            return ResponseEntity.ok(new ApiResponse<>("Tour has successfully been removed"));
     }
 
     @PutMapping("/{tourId}")
-    public ResponseEntity<?> updateTour(@PathVariable UUID agencyId,
+    public ResponseEntity<ApiResponse<?>> updateTour(@PathVariable UUID agencyId,
                                         @PathVariable UUID tourId,
                                         @RequestBody TourUpdateDto tourUpdateDto) {
-        try{
-            tourService.updateTour(agencyId,tourId,tourUpdateDto);
-            return ResponseEntity.ok("Tour has successfully been updated");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            Tour updatedTour = tourService.updateTour(agencyId,tourId,tourUpdateDto);
+            return ResponseEntity.ok(new ApiResponse<>(updatedTour));
     }
 
     @GetMapping()
-    public ResponseEntity<List<TourResponseDto>> getAllTours() {
-        return new ResponseEntity<>(tourService.getAllTours(), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<TourResponseDto>>> getAllTours() {
+        List<TourResponseDto> tours = tourService.getAllTours();
+        return ResponseEntity.ok(new ApiResponse<>(tours));
+    }
+
+    @GetMapping("/{agencyId}")
+    public ResponseEntity<ApiResponse<List<TourResponseDto>>> getAllToursByAgency(@PathVariable UUID agencyId) {
+        List<TourResponseDto> tours = tourService.getAllToursByAgencyId(agencyId);
+        return ResponseEntity.ok(new ApiResponse<>(tours));
     }
 
 

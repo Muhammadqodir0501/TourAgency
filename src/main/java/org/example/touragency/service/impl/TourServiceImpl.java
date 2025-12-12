@@ -94,6 +94,14 @@ public class TourServiceImpl implements TourService {
                 .toList();
     }
 
+    @Override
+    public List<TourResponseDto> getAllToursByAgencyId(UUID agencyId) {
+        return tourRepository.getAllTours().stream()
+                .filter(tour -> tour.getAgencyId().equals(agencyId))
+                .map(this::toResponseDto)
+                .toList();
+    }
+
     private TourResponseDto toResponseDto(Tour tour) {
         User agency = userRepository.getUserById(tour.getAgencyId());
         return TourResponseDto.builder()

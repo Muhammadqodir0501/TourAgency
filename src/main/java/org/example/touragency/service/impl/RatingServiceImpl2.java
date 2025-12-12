@@ -1,5 +1,5 @@
 package org.example.touragency.service.impl;
-
+/*
 import lombok.RequiredArgsConstructor;
 import org.example.touragency.repository.Database;
 import org.example.touragency.dto.request.RatingDto;
@@ -94,4 +94,4 @@ public class RatingServiceImpl2  {
             tour.setRating(null);
         }
     }
-}
+}*/

@@ -5,7 +5,7 @@ import org.example.touragency.dto.request.UserAddDto;
 import org.example.touragency.dto.response.UserUpdateDto;
 import org.example.touragency.model.enity.User;
 import org.example.touragency.service.abstractions.UserService;
-import org.springframework.http.HttpStatus;
+import org.example.touragency.service.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,38 +20,27 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping()
-    public ResponseEntity<?> addNewUser(@RequestBody UserAddDto userAddDto) {
-        try{
-            userService.addNewUser(userAddDto);
-            return ResponseEntity.ok("User has successfully been added");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<?>> addNewUser(@RequestBody UserAddDto userAddDto) {
+        User newUser = userService.addNewUser(userAddDto);
+        return ResponseEntity.ok(new ApiResponse<>(newUser));
     }
 
     @GetMapping()
-    public ResponseEntity<List<User>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(new ApiResponse<>(users));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUserById(@RequestParam UUID userId) {
-        try{
-            userService.deleteUser(userId);
-            return ResponseEntity.ok("User has successfully been deleted");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        userService.deleteUser(userId);
+        return ResponseEntity.ok(new ApiResponse<>("User has successfully been deleted"));
     }
 
    @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateDto userUpdateDto) {
-        try{
-            userService.updateUser(userId, userUpdateDto);
-            return ResponseEntity.ok("User has successfully been Updated");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+    public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateDto userUpdateDto) {
+       User updatedUser = userService.updateUser(userId, userUpdateDto);
+       return ResponseEntity.ok(new ApiResponse<>(updatedUser));
+   }
 
 }

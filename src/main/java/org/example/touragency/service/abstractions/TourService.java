@@ -16,4 +16,6 @@ public interface TourService {
     Tour updateTour(UUID agencyId, UUID tourId, TourUpdateDto tourUpdateDto);
 
     List<TourResponseDto> getAllTours();
+
+    List<TourResponseDto> getAllToursByAgencyId(UUID agencyId);
 }
