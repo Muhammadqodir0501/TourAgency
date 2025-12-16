@@ -5,7 +5,8 @@ import org.example.touragency.dto.request.UserAddDto;
 import org.example.touragency.dto.response.UserUpdateDto;
 import org.example.touragency.model.enity.User;
 import org.example.touragency.service.abstractions.UserService;
-import org.example.touragency.service.response.ApiResponse;
+import org.example.touragency.exception.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -22,7 +23,7 @@ public class UserController {
     @PostMapping()
     public ResponseEntity<ApiResponse<?>> addNewUser(@RequestBody UserAddDto userAddDto) {
         User newUser = userService.addNewUser(userAddDto);
-        return ResponseEntity.ok(new ApiResponse<>(newUser));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(newUser));
     }
 
     @GetMapping()
@@ -32,15 +33,16 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUserById(@RequestParam UUID userId) {
+    public ResponseEntity<ApiResponse<Void>> deleteUserById(@PathVariable UUID userId) {
         userService.deleteUser(userId);
-        return ResponseEntity.ok(new ApiResponse<>("User has successfully been deleted"));
+        return ResponseEntity.noContent().build();
     }
 
    @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateDto userUpdateDto) {
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable UUID userId,
+                                                        @RequestBody UserUpdateDto userUpdateDto) {
        User updatedUser = userService.updateUser(userId, userUpdateDto);
-       return ResponseEntity.ok(new ApiResponse<>(updatedUser));
+       return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(updatedUser));
    }
 
 }

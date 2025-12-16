@@ -10,7 +10,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @ToString
 public class UserUpdateDto {
-    private UUID userId;
     private String fullName;
     private String email;
     private String password;
