@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class TourAddDto {
-    private String agencyName;
     private String title;
     private String description;
     private LocalDate startDate;

@@ -1,7 +1,6 @@
 package org.example.touragency.model.enity;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.example.touragency.model.base.BaseEntity;
 
 import java.math.BigDecimal;
@@ -23,7 +22,7 @@ public class Tour extends BaseEntity {
     private LocalDate returnDate;
     private BigDecimal price;
     private String hotel;
-    private City city;
+    private String city;
     private Integer seatsTotal;
     private Integer seatsAvailable;
     private Long views;

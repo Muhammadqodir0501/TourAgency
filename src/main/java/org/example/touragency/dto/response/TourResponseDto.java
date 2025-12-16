@@ -1,7 +1,6 @@
 package org.example.touragency.dto.response;
 
 import lombok.*;
-import org.example.touragency.model.enity.City;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +15,7 @@ import java.util.UUID;
 public class TourResponseDto {
     private UUID id;
     private String agencyName;
+    private UUID agencyId;
     private String title;
     private String description;
     private Integer nights;
@@ -23,7 +23,7 @@ public class TourResponseDto {
     private LocalDate returnDate;
     private BigDecimal price;
     private String hotel;
-    private City city;
+    private String city;
     private Integer seatsTotal;
     private Integer seatsAvailable;
     private Long views;

@@ -6,7 +6,7 @@ import org.example.touragency.dto.response.TourResponseDto;
 import org.example.touragency.dto.response.TourUpdateDto;
 import org.example.touragency.model.enity.Tour;
 import org.example.touragency.service.abstractions.TourService;
-import org.example.touragency.service.response.ApiResponse;
+import org.example.touragency.exception.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,23 +24,23 @@ public class TourController {
     @PostMapping()
     public ResponseEntity<ApiResponse<?>> addNewTour(@PathVariable UUID agencyId,
                                                      @RequestBody TourAddDto tourAddDto) {
-            Tour createdTour = tourService.addNewTour(agencyId, tourAddDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(createdTour));
+        Tour createdTour = tourService.addNewTour(agencyId, tourAddDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(createdTour));
 
     }
 
     @DeleteMapping("/{tourId}")
     public ResponseEntity<ApiResponse<?>> deleteTour(@PathVariable UUID agencyId, @PathVariable UUID tourId) {
-            tourService.deleteTour(agencyId,tourId);
-            return ResponseEntity.ok(new ApiResponse<>("Tour has successfully been removed"));
+        tourService.deleteTour(agencyId,tourId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{tourId}")
     public ResponseEntity<ApiResponse<?>> updateTour(@PathVariable UUID agencyId,
                                         @PathVariable UUID tourId,
                                         @RequestBody TourUpdateDto tourUpdateDto) {
-            Tour updatedTour = tourService.updateTour(agencyId,tourId,tourUpdateDto);
-            return ResponseEntity.ok(new ApiResponse<>(updatedTour));
+        Tour updatedTour = tourService.updateTour(agencyId,tourId,tourUpdateDto);
+        return ResponseEntity.ok(new ApiResponse<>(updatedTour));
     }
 
     @GetMapping()

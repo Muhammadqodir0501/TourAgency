@@ -18,4 +18,10 @@ public interface TourService {
     List<TourResponseDto> getAllTours();
 
     List<TourResponseDto> getAllToursByAgencyId(UUID agencyId);
+
+    void tourIsBooked(Tour tour);
+
+    void tourBookingIsCanceled(UUID tourId);
+
+    Tour addRatingTour(UUID tourId, Float rating);
 }
