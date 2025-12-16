@@ -1,4 +1,4 @@
-package org.example.touragency.service.response;
+package org.example.touragency.exception;
 
 import lombok.Getter;
 import lombok.Setter;
