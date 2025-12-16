@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.touragency.model.enity.FavouriteTour;
 import org.example.touragency.model.enity.Tour;
 import org.example.touragency.service.abstractions.FavouriteTourService;
-import org.example.touragency.service.response.ApiResponse;
+import org.example.touragency.exception.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +22,13 @@ public class FavouriteTourController {
     @PostMapping("/{tourId}")
     public ResponseEntity<ApiResponse<?>> addFavTour(@PathVariable UUID userId, @PathVariable UUID tourId) {
         FavouriteTour favouriteTour = favouriteTourService.addFavouriteTour(userId,tourId);
-        return ResponseEntity.ok(new ApiResponse<>(favouriteTour));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(favouriteTour));
     }
 
     @DeleteMapping("/{tourId}")
-    public ResponseEntity<ApiResponse<?>> deleteFavouriteTour(@PathVariable UUID userId, @PathVariable UUID tourId) {
+    public ResponseEntity<ApiResponse<Void>> deleteFavouriteTour(@PathVariable UUID userId, @PathVariable UUID tourId) {
         favouriteTourService.deleteFavouriteTour(userId,tourId);
-        return ResponseEntity.ok(new ApiResponse<>("Tour has been deleted from the Favourite list"));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping()
