@@ -37,7 +37,7 @@ public class RatingRepository {
 
     public Rating findRatingByUserAndTourIds(UUID userId, UUID tourId) {
         return ratings.values().stream()
-                .filter(r -> r.getTourId().equals(tourId) && r.getTourId().equals(userId))
+                .filter(r -> r.getTourId().equals(tourId) && r.getUserId().equals(userId))
                 .findFirst()
                 .orElse(null);
     }

@@ -150,16 +150,6 @@ public class TourServiceImpl implements TourService {
         }
     }
 
-    @Override
-    public Tour addRatingTour(UUID tourId, Float rating) {
-        Tour existTour = tourRepository.getTourById(tourId);
-        if(existTour == null) {
-            throw new RuntimeException("Tour not found while giving rating");
-        }
-        existTour.setRating(rating);
-        return existTour;
-    }
-
     private TourResponseDto toResponseDto(Tour tour) {
         User agency = userRepository.getUserById(tour.getAgencyId());
         return TourResponseDto.builder()

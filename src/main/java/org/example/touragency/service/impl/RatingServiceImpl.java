@@ -18,35 +18,31 @@ public class RatingServiceImpl implements RatingService {
 
     private final RatingRepository ratingRepository;
     private final TourRepository tourRepository;
-    private final TourServiceImpl tourServiceImpl;
 
     @Override
     public Rating addRating(RatingDto ratingDto) {
         UUID tourId = ratingDto.getTourId();
         UUID userId = ratingDto.getUserId();
-        if(tourId == null){
-            throw new RuntimeException("Tour not found");
-        }
-        if(userId == null){
-            throw new RuntimeException("User not found");
+        if (tourId == null || userId == null) {
+            throw new RuntimeException("Tour or User ID is null");
         }
 
         Rating existRating = ratingRepository.findRatingByUserAndTourIds(userId, tourId);
+        Rating rating;
         if(existRating != null){
             updateExistRating(ratingDto, existRating);
+            rating = existRating;
         }else{
-            Rating rating = Rating.builder()
+            rating = Rating.builder()
                     .tourId(tourId)
                     .userId(userId)
                     .rating(ratingDto.getRating())
                     .build();
             ratingRepository.addRating(rating);
-            tourServiceImpl.addRatingTour(tourId,ratingDto.getRating());
             ratingCount(ratingDto);
-            return rating;
         }
         syncTourRatingFromCounter(tourId);
-        return null;
+        return rating;
     }
 
     @Override
@@ -72,14 +68,7 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public void updateExistRating(RatingDto ratingDto, Rating existRating) {
-
-        UUID tourId = existRating.getTourId();
-
-        if(tourId == null){
-            throw new RuntimeException("Tour not found");
-        }
-
-        RatingCounter counter = ratingRepository.findRatingCounterByTourId(tourId);
+        RatingCounter counter = ratingRepository.findRatingCounterByTourId(existRating.getTourId());
 
         if(counter != null){
             float newAvg = (counter.getAverageRating() * counter.getRatingAmount()
@@ -88,7 +77,6 @@ public class RatingServiceImpl implements RatingService {
 
             counter.setAverageRating(newAvg);
             existRating.setRating(ratingDto.getRating());
-            tourServiceImpl.addRatingTour(tourId,newAvg);
 
         }
     }

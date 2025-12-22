@@ -25,5 +25,4 @@ public interface TourService {
 
     void tourBookingIsCanceled(UUID tourId);
 
-    Tour addRatingTour(UUID tourId, Float rating);
 }
