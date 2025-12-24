@@ -13,6 +13,7 @@ import org.example.touragency.repository.UserRepository;
 import org.example.touragency.service.abstractions.TourService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -150,6 +151,31 @@ public class TourServiceImpl implements TourService {
         }
     }
 
+    @Override
+    public TourResponseDto addDiscount(UUID agencyId, UUID tourId, Integer discountPercent) {
+        User admin =  userRepository.getUserById(agencyId);
+        Tour tour = tourRepository.getTourById(tourId);
+
+        if(tour == null || admin == null) {
+            throw new RuntimeException("Tour or User not found");
+        }
+        if(discountPercent < 0 || discountPercent > 100) {
+            throw new RuntimeException("Invalid discount percent");
+        }
+        if(!tour.getAgencyId().equals(agencyId)) {
+            throw new RuntimeException("Agency not found");
+        }
+
+        tour.setDiscountPercent(discountPercent);
+        tour.setPriceWithDiscount(
+                tour.getPrice().multiply(
+                        BigDecimal.valueOf(100 - discountPercent)
+                ).divide(BigDecimal.valueOf(100))
+        );
+        return toResponseDto(tour);
+
+    }
+
     private TourResponseDto toResponseDto(Tour tour) {
         User agency = userRepository.getUserById(tour.getAgencyId());
         return TourResponseDto.builder()
@@ -162,6 +188,7 @@ public class TourServiceImpl implements TourService {
                 .startDate(tour.getStartDate())
                 .returnDate(tour.getReturnDate())
                 .price(tour.getPrice())
+                .priceWithDiscount(tour.getPriceWithDiscount())
                 .hotel(tour.getHotel())
                 .city(tour.getCity())
                 .seatsTotal(tour.getSeatsTotal())

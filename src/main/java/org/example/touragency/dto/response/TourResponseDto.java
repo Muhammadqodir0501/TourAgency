@@ -22,6 +22,7 @@ public class TourResponseDto {
     private LocalDate startDate;
     private LocalDate returnDate;
     private BigDecimal price;
+    private BigDecimal priceWithDiscount;
     private String hotel;
     private String city;
     private Integer seatsTotal;

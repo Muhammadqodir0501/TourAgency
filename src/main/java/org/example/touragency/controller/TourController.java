@@ -61,5 +61,12 @@ public class TourController {
         return ResponseEntity.ok(new ApiResponse<>(tour));
     }
 
+    @PostMapping("/{tourId}")
+    public ResponseEntity<ApiResponse<TourResponseDto>> addDiscount
+            (@PathVariable UUID agencyId, @PathVariable UUID tourId, @RequestBody Integer discountPercent ) {
+        TourResponseDto tour = tourService.addDiscount(agencyId,tourId,discountPercent);
+        return ResponseEntity.ok(new ApiResponse<>(tour));
+    }
+
 
 }

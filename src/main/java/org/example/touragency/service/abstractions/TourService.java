@@ -25,4 +25,5 @@ public interface TourService {
 
     void tourBookingIsCanceled(UUID tourId);
 
+    TourResponseDto addDiscount(UUID agencyId, UUID tourId, Integer discountPercent);
 }
