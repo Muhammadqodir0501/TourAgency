@@ -1,6 +1,7 @@
 package org.example.touragency.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.touragency.dto.response.BookingResponseDto;
 import org.example.touragency.model.entity.Booking;
 import org.example.touragency.model.entity.Tour;
 import org.example.touragency.model.entity.User;
@@ -8,10 +9,10 @@ import org.example.touragency.repository.BookingRepository;
 import org.example.touragency.repository.TourRepository;
 import org.example.touragency.repository.UserRepository;
 import org.example.touragency.service.abstractions.BookingService;
+import org.example.touragency.service.abstractions.TourService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -21,42 +22,56 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final TourRepository tourRepository;
-    private final TourServiceImpl tourServiceImpl;
+    private final TourService tourService;
 
     @Override
-    public Booking addBooking(UUID userId, UUID tourId) {
+    public BookingResponseDto addBooking(UUID userId, UUID tourId) {
 
-        Optional<Tour> existTour = tourRepository.findById(tourId);
-        if(existTour.isEmpty()) {
-            throw new RuntimeException("Tour not found");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Optional<User> existUser = userRepository.findById(userId);
-        if(existUser.isEmpty()) {
-            throw new RuntimeException("User not found");
-        }
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tour not found"));
 
-        if(!existTour.get().isAvailable()) {
+        if (!tour.isAvailable()) {
             throw new RuntimeException("Tour not available");
         }
-        Booking newBooking = Booking.builder()
-                .user(existUser.get())
-                .tour(existTour.get())
+
+        Booking booking = Booking.builder()
+                .user(user)
+                .tour(tour)
                 .build();
 
+        bookingRepository.save(booking);
+        tourService.tourIsBooked(tour);
 
-        tourServiceImpl.tourIsBooked(existTour.orElse(null));
-        return bookingRepository.save(newBooking);
+        return new BookingResponseDto(
+                booking.getId(),
+                user.getId(),
+                tour.getId()
+        );
     }
+
 
     @Override
-    public List<Booking> getUsersBookings(UUID userId) {
-        return bookingRepository.findAllBookingsByUserId(userId);
+    public List<BookingResponseDto> getUsersBookings(UUID userId) {
+
+        List<Booking> bookings = bookingRepository.findAllBookingsByUserId(userId);
+
+        return bookings.stream()
+                .map(b -> new BookingResponseDto(
+                        b.getId(),
+                        b.getUser().getId(),
+                        b.getTour().getId()
+                ))
+                .toList();
     }
+
 
     @Override
     public void cancelBooking(UUID userId, UUID tourId) {
-        tourServiceImpl.tourBookingIsCanceled(tourId);
+        tourService.tourBookingIsCanceled(tourId);
         bookingRepository.deleteByUserIdAndTourId(userId, tourId);
     }
+
 }

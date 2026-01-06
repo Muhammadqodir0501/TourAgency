@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.touragency.model.base.BaseEntity;
 
-@Entity
-@Table(name = "bookings")
+import java.util.UUID;
+
+//@Entity
+//@Table(name = "bookings")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,3 +23,4 @@ public class Booking extends BaseEntity {
     @JoinColumn(name = "tour_id", nullable = false)
     private Tour tour;
 }
+
