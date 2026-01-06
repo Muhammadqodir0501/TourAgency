@@ -8,9 +8,6 @@ import org.example.touragency.model.Role;
 import org.example.touragency.model.entity.Tour;
 import org.example.touragency.model.entity.User;
 import org.example.touragency.repository.*;
-import org.example.touragency.service.abstractions.BookingService;
-import org.example.touragency.service.abstractions.FavouriteTourService;
-import org.example.touragency.service.abstractions.RatingService;
 import org.example.touragency.service.abstractions.TourService;
 import org.springframework.stereotype.Service;
 

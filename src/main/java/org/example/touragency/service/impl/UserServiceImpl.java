@@ -79,20 +79,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(UUID userId, UserUpdateDto dto) {
+
         if (userId == null || dto == null) {
             throw new IllegalArgumentException("Parameters cannot be null");
         }
 
-        return userRepository.findById(userId)
-                .map(existingUser -> {
-                    existingUser.setFullName(dto.getFullName());
-                    existingUser.setEmail(dto.getEmail());
-                    existingUser.setPassword(dto.getPassword());
-                    existingUser.setPhoneNumber(dto.getPhoneNumber());
-                    return userRepository.update(existingUser);
-                })
-                .orElse(null);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        user.setPhoneNumber(dto.getPhoneNumber());
+
+        return userRepository.update(user);
     }
+
 
     @Override
     public List<User> getAllUsers() {
