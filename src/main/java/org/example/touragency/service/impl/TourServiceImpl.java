@@ -7,9 +7,10 @@ import org.example.touragency.dto.response.TourUpdateDto;
 import org.example.touragency.model.Role;
 import org.example.touragency.model.entity.Tour;
 import org.example.touragency.model.entity.User;
-import org.example.touragency.repository.FavTourRepository;
-import org.example.touragency.repository.TourRepository;
-import org.example.touragency.repository.UserRepository;
+import org.example.touragency.repository.*;
+import org.example.touragency.service.abstractions.BookingService;
+import org.example.touragency.service.abstractions.FavouriteTourService;
+import org.example.touragency.service.abstractions.RatingService;
 import org.example.touragency.service.abstractions.TourService;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,10 @@ public class TourServiceImpl implements TourService {
 
     private final TourRepository tourRepository;
     private final UserRepository userRepository;
+    private final RatingRepository ratingRepository;
     private final FavTourRepository favTourRepository;
+    private final BookingRepository bookingRepository;
+
 
 
     @Override
@@ -69,14 +73,17 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public void deleteTour(UUID agencyId, UUID tourId) {
-
         Optional<User> agency = userRepository.findById(agencyId);
 
-        if(agency.get().getRole().equals(Role.AGENCY) && tourId != null) {
+        if (agency.isPresent() && agency.get().getRole() == Role.AGENCY) {
+            ratingRepository.deleteAllRatingsIfTourDeleted(tourId);
+            ratingRepository.deleteAllCountersIfTourDeleted(tourId);
             favTourRepository.deleteAllIfTourDeleted(tourId);
+            bookingRepository.deleteAllIfTourDeleted(tourId);
             tourRepository.deleteById(tourId);
         }
     }
+
 
     @Override
     public Tour updateTour(UUID agencyId, UUID tourId, TourUpdateDto tourUpdateDto) {
@@ -102,6 +109,7 @@ public class TourServiceImpl implements TourService {
         existingTour.get().setReturnDate(tourUpdateDto.getReturnDate());
         existingTour.get().setNights(nights);
         existingTour.get().setHotel(tourUpdateDto.getHotel());
+        tourRepository.update(existingTour.get());
         return existingTour.orElse(null);
     }
 
@@ -143,6 +151,7 @@ public class TourServiceImpl implements TourService {
             if(tour.getSeatsAvailable() == 0){
                 tour.setAvailable(false);
             }
+            tourRepository.update(tour);
         }
     }
     @Override
@@ -151,6 +160,7 @@ public class TourServiceImpl implements TourService {
         tour.get().setSeatsAvailable(tour.get().getSeatsAvailable() + 1);
         if(tour.get().getSeatsAvailable() == 0){
             tour.get().setAvailable(true);
+            tourRepository.update(tour.get());
         }
     }
 
@@ -175,6 +185,7 @@ public class TourServiceImpl implements TourService {
                         BigDecimal.valueOf(100 - discountPercent)
                 ).divide(BigDecimal.valueOf(100))
         );
+        tourRepository.update(tour.get());
         return toResponseDto(tour.orElse(null));
 
     }
