@@ -2,6 +2,8 @@ package org.example.touragency.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.touragency.dto.response.BookingResponseDto;
+import org.example.touragency.exception.ConflictException;
+import org.example.touragency.exception.NotFoundException;
 import org.example.touragency.model.entity.Booking;
 import org.example.touragency.model.entity.Tour;
 import org.example.touragency.model.entity.User;
@@ -28,13 +30,20 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDto addBooking(UUID userId, UUID tourId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Tour tour = tourRepository.findById(tourId)
-                .orElseThrow(() -> new RuntimeException("Tour not found"));
+                .orElseThrow(() -> new NotFoundException("Tour not found"));
 
         if (!tour.isAvailable()) {
-            throw new RuntimeException("Tour not available");
+            throw new ConflictException("Tour not available");
+        }
+
+        boolean alreadyBooked =
+                bookingRepository.findBookingByUserAndTourId(userId, tourId).isPresent();
+
+        if (alreadyBooked) {
+            throw new ConflictException("User already booked this tour");
         }
 
         Booking booking = Booking.builder()
@@ -56,7 +65,10 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getUsersBookings(UUID userId) {
 
-        List<Booking> bookings = bookingRepository.findAllBookingsByUserId(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        List<Booking> bookings = bookingRepository.findAllBookingsByUserId(user.getId());
 
         return bookings.stream()
                 .map(b -> new BookingResponseDto(
@@ -70,6 +82,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void cancelBooking(UUID userId, UUID tourId) {
+
+        bookingRepository.findBookingByUserAndTourId(userId, tourId)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+
         tourService.tourBookingIsCanceled(tourId);
         bookingRepository.deleteByUserIdAndTourId(userId, tourId);
     }

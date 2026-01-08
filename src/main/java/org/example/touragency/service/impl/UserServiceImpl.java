@@ -3,6 +3,9 @@ package org.example.touragency.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.example.touragency.dto.request.UserAddDto;
 import org.example.touragency.dto.response.UserUpdateDto;
+import org.example.touragency.exception.BadRequestException;
+import org.example.touragency.exception.ConflictException;
+import org.example.touragency.exception.NotFoundException;
 import org.example.touragency.model.Role;
 import org.example.touragency.model.entity.Tour;
 import org.example.touragency.model.entity.User;
@@ -26,14 +29,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addNewUser(UserAddDto dto) {
         if (dto == null) {
-            throw new IllegalArgumentException("UserAddDto cannot be null");
+            throw new BadRequestException("UserAddDto cannot be null");
         }
         if (userRepository.findByPhoneNumber(dto.getPhoneNumber()).isPresent()) {
-            throw new IllegalArgumentException("The phone number already exists");
+            throw new ConflictException("The phone number already exists");
         }
 
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("The email already exists");
+            throw new ConflictException("The email already exists");
         }
 
         User newUser = User.builder()
@@ -50,7 +53,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(UUID userId) {
         if (userId == null) {
-            throw new IllegalArgumentException("userId cannot be null");
+            throw new BadRequestException("UserId cannot be null");
         }
 
         userRepository.findById(userId).ifPresent(user -> {
@@ -81,11 +84,23 @@ public class UserServiceImpl implements UserService {
     public User updateUser(UUID userId, UserUpdateDto dto) {
 
         if (userId == null || dto == null) {
-            throw new IllegalArgumentException("Parameters cannot be null");
+            throw new BadRequestException("Parameters cannot be null");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        userRepository.findByEmail(dto.getEmail())
+                .filter(u -> !u.getId().equals(userId))
+                .ifPresent(u -> {
+                    throw new ConflictException("Email already in use");
+                });
+
+        userRepository.findByPhoneNumber(dto.getPhoneNumber())
+                .filter(u -> !u.getId().equals(userId))
+                .ifPresent(u -> {
+                    throw new ConflictException("Phone number already in use");
+                });
 
         user.setFullName(dto.getFullName());
         user.setEmail(dto.getEmail());
@@ -103,7 +118,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(UUID userId) {
-        return userRepository.findById(userId).orElse(null);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 }

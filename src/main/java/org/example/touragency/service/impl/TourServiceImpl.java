@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.touragency.dto.request.TourAddDto;
 import org.example.touragency.dto.response.TourResponseDto;
 import org.example.touragency.dto.response.TourUpdateDto;
+import org.example.touragency.exception.BadRequestException;
+import org.example.touragency.exception.ConflictException;
+import org.example.touragency.exception.ForbiddenException;
+import org.example.touragency.exception.NotFoundException;
 import org.example.touragency.model.Role;
 import org.example.touragency.model.entity.Tour;
 import org.example.touragency.model.entity.User;
@@ -36,20 +40,19 @@ public class TourServiceImpl implements TourService {
         Optional<User> agency = userRepository.findById(agencyId);
 
         if (agency.isEmpty()) {
-            throw new RuntimeException("Agency not found");
+            throw new NotFoundException("Agency not found");
         }
 
         if (!agency.get().getRole().equals(Role.AGENCY)) {
-            throw new RuntimeException("User is not an agency");
+            throw new ConflictException("User is not an agency");
         }
 
         int nights = calculatingNights(tourAddDto.getStartDate(), tourAddDto.getReturnDate());
 
-        User existAgency = userRepository.findById(agencyId).orElse(null);
 
         Tour newTour = Tour.builder()
                 .title(tourAddDto.getTitle())
-                .agency(existAgency)
+                .agency(agency.get())
                 .city(tourAddDto.getCity())
                 .hotel(tourAddDto.getHotel())
                 .description(tourAddDto.getDescription())
@@ -72,13 +75,20 @@ public class TourServiceImpl implements TourService {
     public void deleteTour(UUID agencyId, UUID tourId) {
         Optional<User> agency = userRepository.findById(agencyId);
 
-        if (agency.isPresent() && agency.get().getRole() == Role.AGENCY) {
-            ratingRepository.deleteAllRatingsIfTourDeleted(tourId);
-            ratingRepository.deleteAllCountersIfTourDeleted(tourId);
-            favTourRepository.deleteAllIfTourDeleted(tourId);
-            bookingRepository.deleteAllIfTourDeleted(tourId);
-            tourRepository.deleteById(tourId);
+        if (agency.isEmpty()) {
+            throw new NotFoundException("Agency not found");
         }
+
+        if (!agency.get().getRole().equals(Role.AGENCY)) {
+            throw new ForbiddenException("User is not an agency");
+        }
+
+        ratingRepository.deleteAllRatingsIfTourDeleted(tourId);
+        ratingRepository.deleteAllCountersIfTourDeleted(tourId);
+        favTourRepository.deleteAllIfTourDeleted(tourId);
+        bookingRepository.deleteAllIfTourDeleted(tourId);
+        tourRepository.deleteById(tourId);
+
     }
 
 
@@ -88,11 +98,11 @@ public class TourServiceImpl implements TourService {
         Optional<Tour> existingTour = tourRepository.findById(tourId);
 
         if(existingTour.isEmpty()) {
-            throw new RuntimeException("Tour not found");
+            throw new NotFoundException("Tour not found");
         }
 
         if(!existingTour.get().getAgency().getId().equals(agencyId)) {
-            throw new RuntimeException("Agency not found");
+            throw new NotFoundException("Agency not found");
         }
         Integer nights = calculatingNights(tourUpdateDto.getStartDate(), tourUpdateDto.getReturnDate());
 
@@ -121,12 +131,12 @@ public class TourServiceImpl implements TourService {
     public TourResponseDto getTourById(UUID userId, UUID tourId) {
         Optional<Tour> tour = tourRepository.findById(tourId);
         if(tour.isEmpty()) {
-            throw new RuntimeException("Tour not found");
+            throw new NotFoundException("Tour not found");
         }
 
         Optional<User> user = userRepository.findById(userId);
         if(user.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new NotFoundException("User not found");
         }
 
         tour.get().setViews(tour.get().getViews() + 1L);
@@ -135,6 +145,14 @@ public class TourServiceImpl implements TourService {
 
     @Override
     public List<TourResponseDto> getAllToursByAgencyId(UUID agencyId) {
+
+        User agency = userRepository.findById(agencyId)
+                .orElseThrow(() -> new NotFoundException("Agency not found"));
+
+        if(!agency.getRole().equals(Role.AGENCY)) {
+            throw new ForbiddenException("User is not an agency");
+        }
+
         return tourRepository.findAll().stream()
                 .filter(tour -> tour.getAgency().getId().equals(agencyId))
                 .map(this::toResponseDto)
@@ -154,6 +172,11 @@ public class TourServiceImpl implements TourService {
     @Override
     public void tourBookingIsCanceled(UUID tourId) {
         Optional<Tour> tour = tourRepository.findById(tourId);
+
+        if(tour.isEmpty()) {
+            throw new NotFoundException("Tour not found");
+        }
+
         tour.get().setSeatsAvailable(tour.get().getSeatsAvailable() + 1);
         if(tour.get().getSeatsAvailable() == 0){
             tour.get().setAvailable(true);
@@ -167,13 +190,13 @@ public class TourServiceImpl implements TourService {
         Optional<Tour> tour = tourRepository.findById(tourId);
 
         if(tour.isEmpty() || admin.isEmpty()) {
-            throw new RuntimeException("Tour or User not found");
+            throw new NotFoundException("Tour or User not found");
         }
         if(discountPercent < 0 || discountPercent > 100) {
-            throw new RuntimeException("Invalid discount percent");
+            throw new BadRequestException("Invalid discount percent");
         }
         if(!tour.get().getAgency().getId().equals(agencyId)) {
-            throw new RuntimeException("Agency not found");
+            throw new NotFoundException("Agency not found");
         }
 
         tour.get().setDiscountPercent(discountPercent);
@@ -212,13 +235,13 @@ public class TourServiceImpl implements TourService {
 
     private Integer calculatingNights(LocalDate startDate, LocalDate returnDate) {
         if (returnDate.isBefore(startDate)) {
-            throw new IllegalArgumentException("Qaytish kuni ketish kunidan vohli bo'lmasligi kerak!");
+            throw new IllegalArgumentException("Return date must not be before start date!");
         }
 
         int nights = (int) ChronoUnit.DAYS.between(startDate, returnDate);
 
         if (nights <= 0) {
-            throw new IllegalArgumentException("Tur kamida 1 kun davom etishi kerak!");
+            throw new IllegalArgumentException("Tour must have at least one night!");
         }
         return nights;
     }

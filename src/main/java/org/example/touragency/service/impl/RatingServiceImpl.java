@@ -2,6 +2,7 @@ package org.example.touragency.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.touragency.dto.request.RatingDto;
+import org.example.touragency.exception.NotFoundException;
 import org.example.touragency.model.entity.Rating;
 import org.example.touragency.model.entity.RatingCounter;
 import org.example.touragency.model.entity.Tour;
@@ -34,10 +35,10 @@ public class RatingServiceImpl implements RatingService {
                 .orElse(null);
 
         Tour tour = tourRepository.findById(tourId)
-                .orElseThrow(() -> new RuntimeException("Tour not found"));
+                .orElseThrow(() -> new NotFoundException("Tour not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (existRating != null) {
             updateExistRating(ratingDto, existRating);

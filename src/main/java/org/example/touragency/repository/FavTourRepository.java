@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -31,6 +32,15 @@ public class FavTourRepository extends AbstractHibernateRepository{
                 .setParameter("userId", userId)
                         .list()
                 );
+    }
+
+    public Optional<FavouriteTour> findByUserAndTourId(UUID userId, UUID tourId){
+        return executeInTransaction((Function<Session, Optional<FavouriteTour>>) sesseion ->
+                sesseion.createQuery("FROM FavouriteTour WHERE user.id = :userId and tour.id = :tourId", FavouriteTour.class)
+                        .setParameter("userId",userId)
+                        .setParameter("tourId", tourId)
+                        .uniqueResultOptional());
+
     }
 
     public void deleteAllIfTourDeleted(UUID tourId) {
